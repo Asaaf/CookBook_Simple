@@ -11,3 +11,11 @@
     </ion-toolbar>
   </ion-header>
 </ion-content>
+
+<div id="main" style="width: 600px; height: 400px;"></div>
+
+@for (category of categories; track $index) {
+<ion-item>
+  <ion-label>{{ category.name }}</ion-label>
+</ion-item>
+}
