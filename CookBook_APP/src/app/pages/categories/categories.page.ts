@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
@@ -12,7 +12,7 @@ import * as echarts from 'echarts';
   standalone: true,
   imports: [IonItem, IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
-export class CategoriesPage implements OnInit {
+export class CategoriesPage implements AfterViewInit, OnDestroy {
   echartInstance: any;
   categories = [
     { name: 'Appetizers' },
@@ -33,12 +33,27 @@ export class CategoriesPage implements OnInit {
   constructor() {
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.inicializarEchart();
   }
 
+  ngOnDestroy() {
+    this.echartInstance?.dispose();
+  }
+
+  @HostListener('window:resize')
+  @HostListener('window:orientationchange')
+  onWindowResize() {
+    this.echartInstance?.resize();
+  }
+
   inicializarEchart() {
-    this.echartInstance = echarts.init(document.getElementById('main'));
+    const chartContainer = document.getElementById('main');
+    if (!chartContainer) {
+      return;
+    }
+
+    this.echartInstance = echarts.init(chartContainer);
     this.echartInstance.setOption({
       title: {
         text: 'Presupuestos por Categoría',
@@ -49,14 +64,17 @@ export class CategoriesPage implements OnInit {
         trigger: 'item'
       },
       legend: {
-        orient: 'vertical',
-        left: 'left'
+        orient: 'horizontal',
+        left: 'center',
+        top: '70%',
+        padding: [12, 0, 0, 0]
       },
       series: [
         {
           name: 'Presupuestos',
           type: 'pie',
-          radius: '50%',
+          radius: '48%',
+          center: ['50%', '40%'],
           data: [
             { value: 1048, name: 'Search Engine' },
             { value: 735, name: 'Direct' },
