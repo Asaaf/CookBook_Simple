@@ -12,7 +12,7 @@
   </ion-header>
 
   @for (c of cardsList; track c; let i = $index) {
-  <ion-card>
+  <ion-card button="true" (click)="editRecipe(c)">
     <div class="image-content">
       <img alt="Imagen de receta" src="{{ c.image }}" />
     </div>
@@ -22,7 +22,10 @@
     </ion-card-header>
 
     <ion-card-content>
-      {{ c.description }}
+      {{ getCardDescription(c) }}
+      <ion-button size="small" fill="outline" color="danger" (click)="requestDeleteRecipe(c, $event)">
+        Eliminar receta
+      </ion-button>
     </ion-card-content>
   </ion-card>
   }
@@ -38,7 +41,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Nueva receta</ion-title>
+        <ion-title>{{ editingRecipeId ? 'Editar receta' : 'Nueva receta' }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -70,8 +73,18 @@
         </ion-item>
       </ion-list>
 
-      <ion-button expand="block" (click)="saveRecipe()">Guardar receta</ion-button>
+      <ion-button expand="block" (click)="saveRecipe()">
+        {{ editingRecipeId ? 'Guardar cambios' : 'Guardar receta' }}
+      </ion-button>
       <ion-button expand="block" fill="outline" color="medium" (click)="closeRecipeForm()">Cancelar</ion-button>
     </ion-content>
   </ng-template>
 </ion-modal>
+
+<ion-alert
+  [isOpen]="isDeleteAlertOpen"
+  header="Confirmar eliminación"
+  [message]="'¿Deseas eliminar la receta \'' + (recipeToDelete?.title ?? '') + '\'?'"
+  [buttons]="deleteAlertButtons"
+  (didDismiss)="cancelDeleteAlert()"
+></ion-alert>

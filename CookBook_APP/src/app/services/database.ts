@@ -69,6 +69,12 @@ export interface CreateRecipeInput {
   timeRequired?: number | null;
 }
 
+// Define la estructura de datos necesaria para actualizar una receta existente.
+export interface UpdateRecipeInput extends CreateRecipeInput {
+  // Identificador obligatorio de la receta a actualizar.
+  id: number;
+}
+
 // Define la forma de un registro de usuario leído desde la base de datos.
 export interface UsuarioRecord {
   // Identificador único del usuario.
@@ -347,6 +353,52 @@ export class Database {
 
     // Obtiene el id insertado si existe, en otro caso retorna 0.
     return Number(result.changes?.lastId ?? 0);
+  }
+
+  // Actualiza una receta existente en la base de datos y retorna true si hubo cambios.
+  async updateRecipe(input: UpdateRecipeInput): Promise<boolean> {
+    // Valida el id de receta a modificar.
+    if (!Number.isInteger(input.id) || input.id <= 0) {
+      throw new Error('El id de la receta es inválido');
+    }
+
+    // Normaliza el nombre y valida que exista contenido mínimo.
+    const name = (input.name ?? '').trim();
+
+    // Si el nombre es vacío, lanza error de validación.
+    if (!name) {
+      throw new Error('El nombre de la receta es obligatorio');
+    }
+
+    // Ejecuta actualización parametrizada de los campos editables.
+    const result = await this.run(
+      'UPDATE recipes SET name = ?, subtitle = ?, description = ?, instructions = ?, time_required = ? WHERE id = ?;',
+      [
+        name,
+        input.subtitle?.trim() || null,
+        input.description?.trim() || null,
+        input.instructions?.trim() || null,
+        input.timeRequired ?? null,
+        input.id,
+      ],
+    );
+
+    // Retorna true cuando al menos una fila fue actualizada.
+    return Number(result.changes?.changes ?? 0) > 0;
+  }
+
+  // Elimina una receta por id y retorna true si se eliminó al menos un registro.
+  async deleteRecipe(id: number): Promise<boolean> {
+    // Valida el identificador recibido.
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error('El id de la receta es inválido');
+    }
+
+    // Ejecuta eliminación parametrizada de la receta.
+    const result = await this.run('DELETE FROM recipes WHERE id = ?;', [id]);
+
+    // Retorna true cuando se elimina al menos una fila.
+    return Number(result.changes?.changes ?? 0) > 0;
   }
 
   // Obtiene todos los usuarios ordenados por nombre.
