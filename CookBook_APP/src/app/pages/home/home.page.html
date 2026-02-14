@@ -10,20 +10,68 @@
       <ion-title size="large">Home</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  @for (c of cardsList; track c; let i = $index) {
+  <ion-card>
+    <div class="image-content">
+      <img alt="Imagen de receta" src="{{ c.image }}" />
+    </div>
+    <ion-card-header>
+      <ion-card-title>{{ c.title }}</ion-card-title>
+      <ion-card-subtitle>{{ c.subtitle }}</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      {{ c.description }}
+    </ion-card-content>
+  </ion-card>
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button aria-label="Agregar receta" (click)="openRecipeForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
 
-@for (c of cardsList; track c; let i = $index) {
-<ion-card>
-  <div class="image-content">
-    <img alt="Silhouette of mountains" src="{{ c.image }}" />
-  </div>
-  <ion-card-header>
-    <ion-card-title>{{ c.title }}</ion-card-title>
-    <ion-card-subtitle>{{ c.subtitle }}</ion-card-subtitle>
-  </ion-card-header>
+<ion-modal [isOpen]="isRecipeModalOpen" (didDismiss)="closeRecipeForm()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Nueva receta</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-  <ion-card-content>
-    {{ c.description }}
-  </ion-card-content>
-</ion-card>
-}
+    <ion-content class="ion-padding">
+      <ion-list>
+        <ion-item>
+          <ion-label position="stacked">Nombre *</ion-label>
+          <ion-input [(ngModel)]="newRecipe.title" placeholder="Ej: Lasaña casera"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Subtítulo</ion-label>
+          <ion-input [(ngModel)]="newRecipe.subtitle" placeholder="Breve descripción"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Descripción</ion-label>
+          <ion-textarea [(ngModel)]="newRecipe.description" autoGrow="true"></ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Instrucciones</ion-label>
+          <ion-textarea [(ngModel)]="newRecipe.instructions" autoGrow="true"></ion-textarea>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Tiempo (minutos)</ion-label>
+          <ion-input type="number" [(ngModel)]="newRecipe.timeRequired"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-button expand="block" (click)="saveRecipe()">Guardar receta</ion-button>
+      <ion-button expand="block" fill="outline" color="medium" (click)="closeRecipeForm()">Cancelar</ion-button>
+    </ion-content>
+  </ng-template>
+</ion-modal>
