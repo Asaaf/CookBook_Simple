@@ -1,11 +1,12 @@
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonApp, IonSplitPane, IonMenu, IonContent, IonList, IonListHeader, IonNote, IonMenuToggle, IonItem, IonIcon, IonLabel, IonRouterOutlet, IonRouterLink } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { copy, home, list, cart, fastFood } from 'ionicons/icons';
 import { Page } from './models/page';
 import { Usuario } from './models/usuario';
+import { Database } from './services/database';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,7 @@ import { Usuario } from './models/usuario';
     IonRouterOutlet
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   user: Usuario;
   
   public appPages = [
@@ -40,8 +41,12 @@ export class AppComponent {
   ];
   public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
   
-  constructor() {
+  constructor(private readonly database: Database) {
     addIcons({ home, copy, list, cart, fastFood });
     this.user = new Usuario('Vidal', 'Admin', 'vidalUser', 'password123');
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.database.initializeDatabase();
   }
 }
